@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag" class="transition-colors duration-300">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Semester GPA Calculator</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', 
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#111827',
+                        darkCard: '#1f2937',
+                        darkInput: '#374151',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; padding-bottom: 200px; }
+        .subject-row { transition: 0.2s; }
+        .subject-row:hover { background-color: rgba(99, 102, 241, 0.05); }
+        .dark .subject-row:hover { background-color: rgba(99, 102, 241, 0.1); }
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+        }
+        .grade-badge { transition: all 0.2s ease-in-out; opacity: 0; transform: translateY(-5px); }
+        .grade-badge.show { opacity: 1; transform: translateY(0); }
+        .modal-open { display: flex !important; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+
+    <div class="fixed top-0 left-0 w-full bg-white dark:bg-gray-800 shadow-sm z-40 px-4 py-3 flex justify-between items-center">
+        <h1 class="text-lg font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+            <i class="fas fa-calculator"></i> <span id="txt_appTitle">GPA Calculator</span>
+        </h1>
+        <div class="flex gap-2">
+            <button onclick="toggleDarkMode()" class="bg-gray-100 dark:bg-gray-700 p-2 rounded-full text-gray-600 dark:text-yellow-400 hover:scale-110 transition w-9 h-9 flex items-center justify-center">
+                <i class="fas fa-moon" id="darkModeIcon"></i>
+            </button>
+            <button onclick="toggleLanguage()" class="bg-indigo-50 dark:bg-gray-700 px-3 py-1 rounded-full text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition">
+                <span id="langBtnText">العربية</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container mx-auto max-w-2xl mt-20 px-4">
+        
+        <div class="bg-indigo-600 rounded-2xl p-6 text-white text-center mb-6 shadow-lg">
+            <h2 class="text-2xl font-bold mb-1" id="txt_semesterTitle">Semester 1</h2>
+            <p class="text-indigo-100 text-sm" id="txt_semesterDesc">Enter your total score for each subject</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-6">
+            <div class="grid grid-cols-12 gap-2 bg-gray-50 dark:bg-gray-700 p-3 text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider text-center border-b dark:border-gray-600">
+                <div class="col-span-5 text-left px-2" id="txt_h_subject">Subject</div>
+                <div class="col-span-2" id="txt_h_hours">Hrs</div>
+                <div class="col-span-2" id="txt_h_max">Max</div>
+                <div class="col-span-3" id="txt_h_score">Score</div>
+            </div>
+
+            <div id="subjectsContainer" class="divide-y divide-gray-100 dark:divide-gray-700">
+                
+                <div class="grid grid-cols-12 gap-2 p-3 items-center subject-row">
+                    <div class="col-span-5 flex flex-col justify-center px-2">
+                        <span class="font-semibold text-gray-800 dark:text-gray-200 text-sm">Human Dentition</span>
+                        <span class="text-[10px] text-gray-400 dark:text-gray-500">Core</span>
+                    </div>
+                    <div class="col-span-2 text-center text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-700 py-1 rounded">3</div>
+                    <div class="col-span-2 text-center text-xs text-gray-400 font-mono py-1">150</div>
+                    <div class="col-span-3 flex flex-col items-center relative">
+                        <input type="number" data-hours="3" data-max="150" class="score-input w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-center text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all placeholder-gray-300" placeholder="-">
+                        <span class="grade-badge text-[10px] font-bold mt-1 absolute -bottom-4"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 p-3 items-center subject-row">
+                    <div class="col-span-5 flex flex-col justify-center px-2">
+                        <span class="font-semibold text-gray-800 dark:text-gray-200 text-sm">Physics</span>
+                        <span class="text-[10px] text-gray-400 dark:text-gray-500">Core</span>
+                    </div>
+                    <div class="col-span-2 text-center text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-700 py-1 rounded">2</div>
+                    <div class="col-span-2 text-center text-xs text-gray-400 font-mono py-1">100</div>
+                    <div class="col-span-3 flex flex-col items-center relative">
+                        <input type="number" data-hours="2" data-max="100" class="score-input w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-center text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all placeholder-gray-300" placeholder="-">
+                        <span class="grade-badge text-[10px] font-bold mt-1 absolute -bottom-4"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 p-3 items-center subject-row">
+                    <div class="col-span-5 flex flex-col justify-center px-2">
+                        <span class="font-semibold text-gray-800 dark:text-gray-200 text-sm">Cell Bio & Genetics</span>
+                        <span class="text-[10px] text-gray-400 dark:text-gray-500">Core</span>
+                    </div>
+                    <div class="col-span-2 text-center text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-700 py-1 rounded">2</div>
+                    <div class="col-span-2 text-center text-xs text-gray-400 font-mono py-1">100</div>
+                    <div class="col-span-3 flex flex-col items-center relative">
+                        <input type="number" data-hours="2" data-max="100" class="score-input w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-center text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all placeholder-gray-300" placeholder="-">
+                        <span class="grade-badge text-[10px] font-bold mt-1 absolute -bottom-4"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 p-3 items-center subject-row">
+                    <div class="col-span-5 flex flex-col justify-center px-2">
+                        <span class="font-semibold text-gray-800 dark:text-gray-200 text-sm" id="txt_chem">General Chemistry</span>
+                        <span class="text-[10px] text-gray-400 dark:text-gray-500">Core</span>
+                    </div>
+                    <div class="col-span-2 text-center text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-700 py-1 rounded">2</div>
+                    <div class="col-span-2 text-center text-xs text-gray-400 font-mono py-1">100</div>
+                    <div class="col-span-3 flex flex-col items-center relative">
+                        <input type="number" data-hours="2" data-max="100" class="score-input w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-center text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all placeholder-gray-300" placeholder="-">
+                        <span class="grade-badge text-[10px] font-bold mt-1 absolute -bottom-4"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 p-3 items-center subject-row bg-yellow-50 dark:bg-yellow-900/10">
+                    <div class="col-span-5 flex flex-col justify-center px-2">
+                        <input type="text" class="bg-transparent border-b border-dashed border-gray-300 focus:border-indigo-500 text-sm font-medium text-gray-700 dark:text-gray-300 outline-none w-full" placeholder="Elective 1 Name..." id="txt_elec1_ph">
+                        <span class="text-[10px] text-yellow-600 dark:text-yellow-500 mt-0.5">Elective</span>
+                    </div>
+                    <div class="col-span-2 text-center text-xs text-gray-500 dark:text-gray-400 font-mono bg-white dark:bg-gray-800 py-1 rounded border dark:border-gray-600">2</div>
+                    <div class="col-span-2 text-center text-xs text-gray-400 font-mono py-1">100</div>
+                    <div class="col-span-3 flex flex-col items-center relative">
+                        <input type="number" data-hours="2" data-max="100" class="score-input w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-center text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all placeholder-gray-300" placeholder="-">
+                        <span class="grade-badge text-[10px] font-bold mt-1 absolute -bottom-4"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 p-3 items-center subject-row bg-yellow-50 dark:bg-yellow-900/10">
+                    <div class="col-span-5 flex flex-col justify-center px-2">
+                        <input type="text" class="bg-transparent border-b border-dashed border-gray-300 focus:border-indigo-500 text-sm font-medium text-gray-700 dark:text-gray-300 outline-none w-full" placeholder="Elective 2 Name..." id="txt_elec2_ph">
+                        <span class="text-[10px] text-yellow-600 dark:text-yellow-500 mt-0.5">Elective</span>
+                    </div>
+                    <div class="col-span-2 text-center text-xs text-gray-500 dark:text-gray-400 font-mono bg-white dark:bg-gray-800 py-1 rounded border dark:border-gray-600">2</div>
+                    <div class="col-span-2 text-center text-xs text-gray-400 font-mono py-1">100</div>
+                    <div class="col-span-3 flex flex-col items-center relative">
+                        <input type="number" data-hours="2" data-max="100" class="score-input w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-center text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all placeholder-gray-300" placeholder="-">
+                        <span class="grade-badge text-[10px] font-bold mt-1 absolute -bottom-4"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 p-3 items-center subject-row bg-yellow-50 dark:bg-yellow-900/10">
+                    <div class="col-span-5 flex flex-col justify-center px-2">
+                        <input type="text" class="bg-transparent border-b border-dashed border-gray-300 focus:border-indigo-500 text-sm font-medium text-gray-700 dark:text-gray-300 outline-none w-full" placeholder="Elective 3 Name..." id="txt_elec3_ph">
+                        <span class="text-[10px] text-yellow-600 dark:text-yellow-500 mt-0.5">Elective</span>
+                    </div>
+                    <div class="col-span-2 text-center text-xs text-gray-500 dark:text-gray-400 font-mono bg-white dark:bg-gray-800 py-1 rounded border dark:border-gray-600">2</div>
+                    <div class="col-span-2 text-center text-xs text-gray-400 font-mono py-1">100</div>
+                    <div class="col-span-3 flex flex-col items-center relative">
+                        <input type="number" data-hours="2" data-max="100" class="score-input w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-center text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all placeholder-gray-300" placeholder="-">
+                        <span class="grade-badge text-[10px] font-bold mt-1 absolute -bottom-4"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 p-3 items-center subject-row">
+                    <div class="col-span-5 flex flex-col justify-center px-2">
+                        <span class="font-semibold text-gray-800 dark:text-gray-200 text-sm">ACT</span>
+                        <span class="text-[10px] text-gray-400 dark:text-gray-500">Other</span>
+                    </div>
+                    <div class="col-span-2 text-center text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-700 py-1 rounded">1</div>
+                    <div class="col-span-2 text-center text-xs text-gray-400 font-mono py-1">50</div>
+                    <div class="col-span-3 flex flex-col items-center relative">
+                        <input type="number" data-hours="1" data-max="50" class="score-input w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-center text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all placeholder-gray-300" placeholder="-">
+                        <span class="grade-badge text-[10px] font-bold mt-1 absolute -bottom-4"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="text-center mb-6">
+            <button onclick="toggleModal('gradeTableModal')" class="inline-flex items-center justify-center text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition-colors focus:outline-none border border-indigo-200 dark:border-indigo-800 rounded-full px-4 py-2 bg-indigo-50 dark:bg-indigo-900/50">
+                <i class="fas fa-table mr-2 rtl:ml-2 rtl:mr-0"></i> <span id="txt_viewTable">View University Grading Table</span>
+            </button>
+        </div>
+
+        <div id="errorBox" class="hidden bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-3 rounded-lg text-xs text-center mb-4">
+            Some scores exceed the maximum limit. Please check.
+        </div>
+        
+        <div class="text-center pb-8 border-t border-gray-200 dark:border-gray-700 pt-4">
+            <p class="text-[10px] text-gray-400 font-light leading-relaxed">
+                • Developed by: Mustafa Ahmed Mustafa<br>
+                • Supervised by: Dr. Mohamed Ali
+            </p>
+        </div>
+
+    </div>
+
+    <div class="sticky-footer bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 transition-transform duration-300 transform translate-y-0" id="resultFooter">
+        <div class="container mx-auto max-w-2xl flex justify-between items-center">
+            
+            <div class="flex flex-col">
+                <span class="text-[10px] uppercase text-gray-400 font-bold tracking-wider" id="txt_f_total">Total Score</span>
+                <span class="text-lg font-bold text-gray-700 dark:text-gray-200"><span id="totalScoreVal">0</span> <span class="text-sm text-gray-400 font-normal">/ 800</span></span>
+            </div>
+
+            <div class="flex flex-col items-end">
+                <span class="text-[10px] uppercase text-indigo-500 font-bold tracking-wider">Semester GPA</span>
+                <div class="flex items-baseline gap-2">
+                    <span id="gpaValue" class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">0.00</span>
+                    <span id="gpaGrade" class="text-sm font-bold px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">--</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="gradeTableModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-indigo-600 text-white">
+                <h3 class="font-bold" id="txt_modalTitle">University Grading Scale</h3>
+                <button onclick="toggleModal('gradeTableModal')" class="text-white hover:text-indigo-200"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="overflow-y-auto p-4 dark:text-gray-200">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm text-left rtl:text-right">
+                        <thead class="text-xs text-gray-500 dark:text-gray-400 uppercase bg-gray-50 dark:bg-gray-700">
+                            <tr><th class="px-3 py-2">Grade</th><th class="px-3 py-2">Points</th><th class="px-3 py-2">Percentage</th><th class="px-3 py-2">Desc</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-emerald-700 dark:text-emerald-400">A+</td><td class="px-3 py-2">4.0</td><td class="px-3 py-2">95 - 100</td><td class="px-3 py-2">Excellent</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-emerald-600 dark:text-emerald-500">A</td><td class="px-3 py-2">4.0</td><td class="px-3 py-2">90 - 95</td><td class="px-3 py-2">Excellent</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-emerald-600 dark:text-emerald-500">A-</td><td class="px-3 py-2">3.7</td><td class="px-3 py-2">85 - 90</td><td class="px-3 py-2">Excellent</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-blue-600 dark:text-blue-400">B+</td><td class="px-3 py-2">3.4</td><td class="px-3 py-2">82 - 85</td><td class="px-3 py-2">Very Good</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-blue-500 dark:text-blue-400">B</td><td class="px-3 py-2">3.2</td><td class="px-3 py-2">78 - 82</td><td class="px-3 py-2">Very Good</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-blue-400 dark:text-blue-300">B-</td><td class="px-3 py-2">3.0</td><td class="px-3 py-2">75 - 78</td><td class="px-3 py-2">Very Good</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-yellow-600 dark:text-yellow-500">C+</td><td class="px-3 py-2">2.8</td><td class="px-3 py-2">72 - 75</td><td class="px-3 py-2">Good</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-yellow-500 dark:text-yellow-400">C</td><td class="px-3 py-2">2.6</td><td class="px-3 py-2">68 - 72</td><td class="px-3 py-2">Good</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-orange-500 dark:text-orange-400">C-</td><td class="px-3 py-2">2.4</td><td class="px-3 py-2">65 - 68</td><td class="px-3 py-2">Good</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-orange-600 dark:text-orange-500">D+</td><td class="px-3 py-2">2.2</td><td class="px-3 py-2">62.5 - 65</td><td class="px-3 py-2">Satisfactory</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-orange-700 dark:text-orange-600">D</td><td class="px-3 py-2">2.0</td><td class="px-3 py-2">60 - 62</td><td class="px-3 py-2">Satisfactory</td></tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700"><td class="px-3 py-2 font-bold text-red-600 dark:text-red-400">F</td><td class="px-3 py-2">0.0</td><td class="px-3 py-2">&lt; 60</td><td class="px-3 py-2">Fail</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-center">
+                 <button onclick="toggleModal('gradeTableModal')" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-semibold" id="txt_close1">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="subjectTableModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-green-600 text-white">
+                <h3 class="font-bold" id="txt_subjectModalTitle">Subject Grade Distribution</h3>
+                <button onclick="toggleModal('subjectTableModal')" class="text-white hover:text-green-200"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="overflow-y-auto p-4 dark:text-gray-200">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm text-left rtl:text-right border-collapse">
+                        <thead class="text-xs text-gray-500 dark:text-gray-400 uppercase bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 border-b dark:border-gray-600" id="txt_th_subject">Subject Name</th>
+                                <th class="px-4 py-3 border-b dark:border-gray-600" id="txt_th_hours">Hrs (Total)</th>
+                                <th class="px-4 py-3 border-b dark:border-gray-600" id="txt_th_breakdown">Grade Breakdown</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 align-top">
+                                <td class="px-4 py-3 font-semibold text-indigo-700 dark:text-indigo-400">Human Dentition</td>
+                                <td class="px-4 py-3 whitespace-nowrap">3 Hrs <br><span class="text-xs text-gray-400">(150 Marks)</span></td>
+                                <td class="px-4 py-3">
+                                    <ul class="list-disc list-inside text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                        <li><b>Quiz 1:</b> 15</li>
+                                        <li><b>Quiz 2:</b> 10</li>
+                                        <li><b>Quiz 3 (Carving):</b> 20</li>
+                                        <li><b>Quiz 4:</b> 15</li>
+                                        <li><b>Final Practical:</b> 25</li>
+                                        <li><b>Final:</b> 45-50</li>
+                                        <li><b>Year Work:</b> 15-20</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 align-top">
+                                <td class="px-4 py-3 font-semibold text-indigo-700 dark:text-indigo-400">Physics</td>
+                                <td class="px-4 py-3 whitespace-nowrap">2 Hrs <br><span class="text-xs text-gray-400">(100 Marks)</span></td>
+                                <td class="px-4 py-3">
+                                    <ul class="list-disc list-inside text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                        <li><b>Quiz 1:</b> 10 | <b>Quiz 2:</b> 15 | <b>Quiz 3:</b> 15</li>
+                                        <li><b>Final Practical:</b> 20</li>
+                                        <li><b>Final:</b> 30</li>
+                                        <li><b>Year Work & Lab:</b> 10</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 align-top">
+                                <td class="px-4 py-3 font-semibold text-indigo-700 dark:text-indigo-400">Cell Biology & Genetics</td>
+                                <td class="px-4 py-3 whitespace-nowrap">2 Hrs <br><span class="text-xs text-gray-400">(100 Marks)</span></td>
+                                <td class="px-4 py-3">
+                                    <ul class="list-disc list-inside text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                        <li><b>Quiz 1:</b> 10 | <b>Quiz 2:</b> 5 | <b>Quiz 3:</b> 10</li>
+                                        <li><b>Oral:</b> 10</li>
+                                        <li><b>Year Work:</b> 15</li>
+                                        <li><b>Final Practical:</b> 20</li>
+                                        <li><b>Final:</b> 30</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 align-top">
+                                <td class="px-4 py-3 font-semibold text-indigo-700 dark:text-indigo-400">General Chemistry</td>
+                                <td class="px-4 py-3 whitespace-nowrap">2 Hrs <br><span class="text-xs text-gray-400">(100 Marks)</span></td>
+                                <td class="px-4 py-3">
+                                    <ul class="list-disc list-inside text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                        <li><b>Assignments (1,2,3):</b> 10 each</li>
+                                        <li><b>Final Practical:</b> 20</li>
+                                        <li><b>Oral:</b> 10</li>
+                                        <li><b>Final:</b> 30</li>
+                                        <li><b>Year Work:</b> 10</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 align-top">
+                                <td class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">Elective Course <div class="text-xs font-normal text-gray-400">(Arabic, English, Scientific Thinking...)</div></td>
+                                <td class="px-4 py-3 whitespace-nowrap">2 Hrs <br><span class="text-xs text-gray-400">(100 Marks)</span></td>
+                                <td class="px-4 py-3 text-gray-400 italic">Grades: -</td>
+                            </tr>
+                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 align-top">
+                                <td class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">ACT</td>
+                                <td class="px-4 py-3 whitespace-nowrap">1 Hr <br><span class="text-xs text-gray-400">(50 Marks)</span></td>
+                                <td class="px-4 py-3 text-gray-400 italic">Grades: -</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-center">
+                 <button onclick="toggleModal('subjectTableModal')" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-semibold" id="txt_close2">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Dark Mode ---
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('darkModeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                html.classList.add('dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        }
+
+        // --- Toggle Modal ---
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex', 'modal-open');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex', 'modal-open');
+            }
+        }
+
+        // --- Calculation Logic ---
+        const inputs = document.querySelectorAll('.score-input');
+        const totalScoreEl = document.getElementById('totalScoreVal');
+        const gpaValueEl = document.getElementById('gpaValue');
+        const gpaGradeEl = document.getElementById('gpaGrade');
+        const errorBox = document.getElementById('errorBox');
+
+        // University Grading Scale (Percentage -> Points & Grade for SUBJECTS)
+        function getPoints(percentage) {
+            if (percentage >= 95) return { p: 4.0, g: 'A+', c: 'text-emerald-600 dark:text-emerald-400' };
+            if (percentage >= 90) return { p: 4.0, g: 'A', c: 'text-emerald-600 dark:text-emerald-400' };
+            if (percentage >= 85) return { p: 3.7, g: 'A-', c: 'text-emerald-600 dark:text-emerald-400' };
+            if (percentage >= 82) return { p: 3.4, g: 'B+', c: 'text-blue-600 dark:text-blue-400' };
+            if (percentage >= 78) return { p: 3.2, g: 'B', c: 'text-blue-500 dark:text-blue-400' };
+            if (percentage >= 75) return { p: 3.0, g: 'B-', c: 'text-blue-400 dark:text-blue-300' };
+            if (percentage >= 72) return { p: 2.8, g: 'C+', c: 'text-yellow-600 dark:text-yellow-500' };
+            if (percentage >= 68) return { p: 2.6, g: 'C', c: 'text-yellow-500 dark:text-yellow-400' };
+            if (percentage >= 65) return { p: 2.4, g: 'C-', c: 'text-orange-500 dark:text-orange-400' };
+            if (percentage >= 62.5) return { p: 2.2, g: 'D+', c: 'text-orange-600 dark:text-orange-500' };
+            if (percentage >= 60) return { p: 2.0, g: 'D', c: 'text-orange-700 dark:text-orange-600' };
+            return { p: 0.0, g: 'F', c: 'text-red-600 dark:text-red-400' };
+        }
+
+        // Final Semester Letter Grade based on GPA
+        function getFinalLetterGrade(gpa) {
+            if (gpa >= 3.9) return "A+";
+            if (gpa >= 3.7) return "A-";
+            if (gpa >= 3.4) return "B+";
+            if (gpa >= 3.2) return "B";
+            if (gpa >= 3.0) return "B-";
+            if (gpa >= 2.8) return "C+";
+            if (gpa >= 2.6) return "C";
+            if (gpa >= 2.4) return "C-";
+            if (gpa >= 2.2) return "D+";
+            if (gpa >= 2.0) return "D";
+            return "F";
+        }
+
+        function calculateGPA() {
+            let totalQualityPoints = 0;
+            let totalHours = 0;
+            let totalScore = 0;
+            let hasError = false;
+
+            inputs.forEach(input => {
+                const val = parseFloat(input.value);
+                const max = parseFloat(input.getAttribute('data-max'));
+                const hours = parseFloat(input.getAttribute('data-hours'));
+                
+                const badge = input.nextElementSibling;
+
+                if (!isNaN(val)) {
+                    if (val > max) {
+                        input.classList.add('border-red-500', 'bg-red-50');
+                        hasError = true;
+                        badge.innerText = "Error";
+                        badge.className = "grade-badge show text-[10px] font-bold mt-1 absolute -bottom-4 text-red-600";
+                    } else {
+                        input.classList.remove('border-red-500', 'bg-red-50');
+                        
+                        const percentage = (val / max) * 100;
+                        const gradeInfo = getPoints(percentage);
+                        
+                        badge.innerText = gradeInfo.g;
+                        badge.className = `grade-badge show text-[10px] font-bold mt-1 absolute -bottom-4 ${gradeInfo.c}`;
+
+                        totalQualityPoints += (gradeInfo.p * hours);
+                        totalHours += hours;
+                        totalScore += val;
+                    }
+                } else {
+                    input.classList.remove('border-red-500', 'bg-red-50');
+                    badge.classList.remove('show');
+                }
+            });
+
+            if (hasError) {
+                errorBox.classList.remove('hidden');
+            } else {
+                errorBox.classList.add('hidden');
+            }
+
+            // Update UI
+            totalScoreEl.innerText = totalScore;
+
+            if (totalHours > 0) {
+                const gpa = totalQualityPoints / totalHours;
+                gpaValueEl.innerText = gpa.toFixed(2);
+                
+                if(gpa >= 3.7) gpaValueEl.className = "text-3xl font-extrabold text-emerald-600 dark:text-emerald-400";
+                else if(gpa >= 3.0) gpaValueEl.className = "text-3xl font-extrabold text-indigo-600 dark:text-indigo-400";
+                else if(gpa >= 2.0) gpaValueEl.className = "text-3xl font-extrabold text-yellow-600 dark:text-yellow-400";
+                else gpaValueEl.className = "text-3xl font-extrabold text-red-600 dark:text-red-400";
+
+                const finalLetter = getFinalLetterGrade(gpa);
+                let finalDesc = "Fail";
+                let finalColor = "bg-red-100 text-red-700";
+
+                if (gpa >= 3.7) { finalDesc = "Excellent"; finalColor = "bg-emerald-100 text-emerald-700"; }
+                else if (gpa >= 3.0) { finalDesc = "Very Good"; finalColor = "bg-blue-100 text-blue-700"; }
+                else if (gpa >= 2.0) { finalDesc = "Good"; finalColor = "bg-yellow-100 text-yellow-700"; }
+                else { finalDesc = "Fail"; finalColor = "bg-red-100 text-red-700"; }
+
+                // Update text to include letter grade e.g. "Excellent (A-)"
+                gpaGradeEl.innerText = `${finalDesc} (${finalLetter})`;
+                gpaGradeEl.className = `text-sm font-bold px-2 py-0.5 rounded ${finalColor}`;
+                
+                // Trigger Confetti
+                if (gpa >= 3.6 && !hasError && !window.confettiFired) {
+                   window.confettiFired = true; 
+                   triggerConfetti();
+                }
+
+            } else {
+                gpaValueEl.innerText = "0.00";
+                gpaGradeEl.innerText = "--";
+                gpaValueEl.className = "text-3xl font-extrabold text-gray-400";
+            }
+        }
+
+        function triggerConfetti() {
+            var duration = 2 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // Add Listeners
+        inputs.forEach(input => {
+            input.addEventListener('input', calculateGPA);
+        });
+
+        // --- Translation ---
+        const translations = {
+            en: {
+                btn: "العربية",
+                title: "GPA Calculator",
+                semTitle: "Semester 1",
+                semDesc: "Enter your total score for each subject",
+                h_sub: "Subject",
+                h_hrs: "Hrs",
+                h_max: "Max",
+                h_scr: "Score",
+                f_total: "Total Score",
+                chem: "General Chemistry",
+                elec1: "Elective 1 Name...",
+                elec2: "Elective 2 Name...",
+                elec3: "Elective 3 Name...",
+                viewTable: "View University Grading Table",
+                modalTitle: "University Grading Scale",
+                close1: "Close",
+                close2: "Close",
+                err: "Some scores exceed the maximum limit."
+            },
+            ar: {
+                btn: "English",
+                title: "حاسبة المعدل التراكمي",
+                semTitle: "الفصل الدراسي الأول",
+                semDesc: "أدخل مجموع درجاتك في كل مادة",
+                h_sub: "المادة",
+                h_hrs: "ساعات",
+                h_max: "عظمى",
+                h_scr: "الدرجة",
+                f_total: "المجموع الكلي",
+                chem: "كيمياء عامة",
+                elec1: "اسم المادة الاختيارية 1...",
+                elec2: "اسم المادة الاختيارية 2...",
+                elec3: "اسم المادة الاختيارية 3...",
+                viewTable: "جدول التقديرات الجامعي",
+                modalTitle: "نظام التقديرات الجامعي",
+                close1: "إغلاق",
+                close2: "إغلاق",
+                err: "تنبيه: بعض الدرجات تتجاوز الحد الأقصى للمادة."
+            }
+        };
+
+        let currentLang = 'en';
+
+        function toggleLanguage() {
+            const html = document.getElementById('htmlTag');
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            const t = translations[currentLang];
+
+            if (currentLang === 'ar') {
+                html.setAttribute('dir', 'rtl');
+                html.setAttribute('lang', 'ar');
+            } else {
+                html.setAttribute('dir', 'ltr');
+                html.setAttribute('lang', 'en');
+            }
+
+            document.getElementById('langBtnText').innerText = t.btn;
+            document.getElementById('txt_appTitle').innerText = t.title;
+            document.getElementById('txt_semesterTitle').innerText = t.semTitle;
+            document.getElementById('txt_semesterDesc').innerText = t.semDesc;
+            document.getElementById('txt_h_subject').innerText = t.h_sub;
+            document.getElementById('txt_h_hours').innerText = t.h_hrs;
+            document.getElementById('txt_h_max').innerText = t.h_max;
+            document.getElementById('txt_h_score').innerText = t.h_scr;
+            document.getElementById('txt_f_total').innerText = t.f_total;
+            document.getElementById('txt_chem').innerText = t.chem;
+            document.getElementById('txt_viewTable').innerText = t.viewTable;
+            document.getElementById('txt_modalTitle').innerText = t.modalTitle;
+            document.getElementById('txt_close1').innerText = t.close1;
+            document.getElementById('txt_close2').innerText = t.close2;
+            document.getElementById('txt_elec1_ph').placeholder = t.elec1;
+            document.getElementById('txt_elec2_ph').placeholder = t.elec2;
+            document.getElementById('txt_elec3_ph').placeholder = t.elec3;
+            document.getElementById('errorBox').innerText = t.err;
+        }
+    </script>
+</body>
+</html>
