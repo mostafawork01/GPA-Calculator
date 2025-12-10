@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Semester GPA Calculator</title>
+    <title>Dentistry 1st Sem GPA – MUST</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -46,8 +46,8 @@
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
 
     <div class="fixed top-0 left-0 w-full bg-white dark:bg-gray-800 shadow-sm z-40 px-4 py-3 flex justify-between items-center">
-        <h1 class="text-lg font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
-            <i class="fas fa-calculator"></i> <span id="txt_appTitle">GPA Calculator</span>
+        <h1 class="text-sm sm:text-lg font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+            <i class="fas fa-calculator"></i> <span id="txt_appTitle">Dentistry 1st Sem GPA – MUST</span>
         </h1>
         <div class="flex gap-2">
             <button onclick="toggleDarkMode()" class="bg-gray-100 dark:bg-gray-700 p-2 rounded-full text-gray-600 dark:text-yellow-400 hover:scale-110 transition w-9 h-9 flex items-center justify-center">
@@ -117,7 +117,7 @@
 
                 <div class="grid grid-cols-12 gap-2 p-3 items-center subject-row">
                     <div class="col-span-5 flex flex-col justify-center px-2">
-                        <span class="font-semibold text-gray-800 dark:text-gray-200 text-sm" id="txt_chem">General Chemistry</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200 text-sm">General Chemistry</span>
                         <span class="text-[10px] text-gray-400 dark:text-gray-500">Core</span>
                     </div>
                     <div class="col-span-2 text-center text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-700 py-1 rounded">2</div>
@@ -195,8 +195,10 @@
         
         <div class="text-center pb-8 border-t border-gray-200 dark:border-gray-700 pt-4">
             <p class="text-[10px] text-gray-400 font-light leading-relaxed">
-                • Developed by: Mustafa Ahmed Mustafa<br>
-                • Supervised by: Dr. Mohamed Ali
+                • Developer: <strong class="text-gray-600 dark:text-gray-300">Mustafa Ahmed</strong><br>
+                • Faculty: <strong class="text-gray-600 dark:text-gray-300">Dentistry, MUST University</strong><br>
+                • ID: <strong class="text-gray-600 dark:text-gray-300">200066753</strong><br>
+                • Supervised by: <strong class="text-gray-600 dark:text-gray-300">Dr. Mohamed Ali</strong>
             </p>
         </div>
 
@@ -515,7 +517,7 @@
         const translations = {
             en: {
                 btn: "العربية",
-                title: "GPA Calculator",
+                title: "Dentistry 1st Sem GPA – MUST", // Updated Name
                 semTitle: "Semester 1",
                 semDesc: "Enter your total score for each subject",
                 h_sub: "Subject",
@@ -523,7 +525,7 @@
                 h_max: "Max",
                 h_scr: "Score",
                 f_total: "Total Score",
-                chem: "General Chemistry",
+                // Removed 'chem' translation key
                 elec1: "Elective 1 Name...",
                 elec2: "Elective 2 Name...",
                 elec3: "Elective 3 Name...",
@@ -535,7 +537,7 @@
             },
             ar: {
                 btn: "English",
-                title: "حاسبة المعدل التراكمي",
+                title: "Dentistry 1st Sem GPA – MUST", // Updated Name
                 semTitle: "الفصل الدراسي الأول",
                 semDesc: "أدخل مجموع درجاتك في كل مادة",
                 h_sub: "المادة",
@@ -543,7 +545,7 @@
                 h_max: "عظمى",
                 h_scr: "الدرجة",
                 f_total: "المجموع الكلي",
-                chem: "كيمياء عامة",
+                // Removed 'chem' translation key
                 elec1: "اسم المادة الاختيارية 1...",
                 elec2: "اسم المادة الاختيارية 2...",
                 elec3: "اسم المادة الاختيارية 3...",
@@ -579,7 +581,7 @@
             document.getElementById('txt_h_max').innerText = t.h_max;
             document.getElementById('txt_h_score').innerText = t.h_scr;
             document.getElementById('txt_f_total').innerText = t.f_total;
-            document.getElementById('txt_chem').innerText = t.chem;
+            // Removed Chem translation line
             document.getElementById('txt_viewTable').innerText = t.viewTable;
             document.getElementById('txt_modalTitle').innerText = t.modalTitle;
             document.getElementById('txt_close1').innerText = t.close1;
